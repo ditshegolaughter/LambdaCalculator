@@ -114,12 +114,14 @@ public class Main implements ActionListener  {
                 Position position = term.visit(new HeadRedex(), null);
                 if(position != null) {
                     setTerm(term.visit(new Rewrite(), position.copy()), definitions, false);
-                    output.append(term.toString(definitions));
+                    output.append(" ==> ");
+                    output.append(term.toString(definitions).replace("\\", "\u03BB"));
                     output.append("\n");
                 }
             }
         }
     }
+    
     public void setTerm(LambdaTerm term, Definitions definitions, boolean collapse) {
         this.term = term;
         this.definitions = definitions;
@@ -131,7 +133,7 @@ public class Main implements ActionListener  {
             term = new Variable("Lambda Calculator");
             Definitions definitions = LambdaTermParser.parse(input.getText());
 
-            output.setText(definitions.get("Init").toString(definitions));
+            output.setText(definitions.get("Init").toString(definitions).replace("\\", "\u03BB"));
             output.append("\n");
 
             setTerm(definitions.get("Init"), definitions, true);
@@ -163,6 +165,11 @@ public class Main implements ActionListener  {
     }
  
     public static void main(String[] args) {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception unused) {
+            ; // Ignore exception because we can't do anything.  Will use default.
+        }
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
