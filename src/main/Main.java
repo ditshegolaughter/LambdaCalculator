@@ -31,7 +31,7 @@ public class Main implements ActionListener  {
     JTextArea output;
     JScrollPane scrollPane;
     
-    private JButton goButton = new JButton("Start");
+    private JButton startButton = new JButton("Start");
     private JButton headStep = new JButton("Next Step");
     private JTextField input = new JTextField("Init = (\\x.\\y.y (x x y))(\\x.\\y.y (x x y)) a;");
     private LambdaTerm term = new Variable("Lambda Calculator");
@@ -78,7 +78,7 @@ public class Main implements ActionListener  {
 
         input.setPreferredSize(new Dimension(250, input.getPreferredSize().height));
         buttonPanel.add(input);
-        buttonPanel.add(goButton);
+        buttonPanel.add(startButton);
         headStep.setEnabled(false);
         //buttonPanel.add(spacer());
         buttonPanel.add(headStep);
@@ -86,12 +86,13 @@ public class Main implements ActionListener  {
         topPanel.add(buttonPanel, BorderLayout.SOUTH);
  
         //Create input textbox
-        JTextField input = new JTextField();
-        input.setSize(2, 10);
+        //JTextField input = new JTextField();
+        //input.setSize(2, 10);
         contentPane.add(topPanel,BorderLayout.NORTH);
         
-        goButton.addActionListener(this);
+        startButton.addActionListener(this);
         headStep.addActionListener(this);
+        input.addActionListener(this);
         //Create a scrolled text area.
         output = new JTextArea(5, 30);
         output.setEditable(false);
@@ -104,7 +105,7 @@ public class Main implements ActionListener  {
         return contentPane;
     }
     public void actionPerformed(ActionEvent actionEvent) {
-        if(actionEvent.getSource() == goButton){
+        if(actionEvent.getSource() == startButton ||actionEvent.getSource() == input){
             parse();
             headStep.setEnabled(true);
         }
@@ -115,7 +116,7 @@ public class Main implements ActionListener  {
                 if(position != null) {
                     setTerm(term.visit(new Rewrite(), position.copy()), definitions, false);
                     output.append(" ==> ");
-                    output.append(term.toString(definitions).replace("\\", "\u03BB"));
+                    output.append(term.toString(definitions));
                     output.append("\n");
                 }
             }
@@ -133,7 +134,7 @@ public class Main implements ActionListener  {
             term = new Variable("Lambda Calculator");
             Definitions definitions = LambdaTermParser.parse(input.getText());
 
-            output.setText(definitions.get("Init").toString(definitions).replace("\\", "\u03BB"));
+            output.setText(definitions.get("Init").toString(definitions));
             output.append("\n");
 
             setTerm(definitions.get("Init"), definitions, true);

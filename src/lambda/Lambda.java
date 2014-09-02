@@ -40,13 +40,13 @@ public class Lambda extends LambdaTerm {
   }
 
   public String toString() {
-    return "\\" + name + "." + term.toString();
+    return "\u03BB" + name + "." + term.toString();
   }
 
   public String toString(Definitions definitions) {
     Definition defined = isDefined(definitions);
     if(defined != null) return defined.getName();
-    return "\\" + name + "." + term.toString(definitions);
+    return "\u03BB" + name + "." + term.toString(definitions);
   }
 
   /**
@@ -80,6 +80,7 @@ public class Lambda extends LambdaTerm {
       String renamedName = rename(name, freeVars);
       renaming.put(name, renamedName);
       freeVars.add(renamedName);
+      System.out.println("Alpha Reduction: (" + this.term.toString()+")["+name + "\\" + renamedName+"]");
       renamed = true;
     }
 
@@ -93,8 +94,9 @@ public class Lambda extends LambdaTerm {
     if(renamed) {
       renaming.remove(this.name);
       freeVars.remove(renamedName);
+      
     }
-
+    
     return this;
   }
 

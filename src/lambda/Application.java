@@ -74,6 +74,7 @@ public class Application extends LambdaTerm {
 
   public LambdaTerm rewrite() {
     Lambda lambda = (Lambda) left;
+    System.out.println("("+ lambda.getTerm()+")["+lambda.getName()+"\\"+right+"]");
     return lambda.getTerm().substitute(lambda.getName(), right);
   }
 
