@@ -28,11 +28,13 @@ import lambda.utils.Position;
  
 
 public class Main implements ActionListener  {
+    public static String Reduction = "";
     JTextArea output;
     JScrollPane scrollPane;
     
     private JButton startButton = new JButton("Start");
     private JButton headStep = new JButton("Next Step");
+    private JButton markerButton = new JButton("Marker");
     private JTextField input = new JTextField("Init = (\\x.\\y.y (x x y))(\\x.\\y.y (x x y)) a;");
     private LambdaTerm term = new Variable("Lambda Calculator");
     private Definitions definitions = new Definitions(new Definition[0]);
@@ -82,6 +84,7 @@ public class Main implements ActionListener  {
         headStep.setEnabled(false);
         //buttonPanel.add(spacer());
         buttonPanel.add(headStep);
+        buttonPanel.add(markerButton);
         
         topPanel.add(buttonPanel, BorderLayout.SOUTH);
  
@@ -92,6 +95,7 @@ public class Main implements ActionListener  {
         
         startButton.addActionListener(this);
         headStep.addActionListener(this);
+        markerButton.addActionListener(this);
         input.addActionListener(this);
         //Create a scrolled text area.
         output = new JTextArea(5, 30);
@@ -117,9 +121,28 @@ public class Main implements ActionListener  {
                     setTerm(term.visit(new Rewrite(), position.copy()), definitions, false);
                     output.append(" ==> ");
                     output.append(term.toString(definitions));
+                    output.append("       //" + Reduction);
                     output.append("\n");
                 }
             }
+        }
+        if(actionEvent.getSource() == markerButton){
+            
+            if(markerButton.getText() == "Marker"){
+                output.setEditable(true);
+                markerButton.setText("Calculator");
+                input.setEnabled(false);
+                startButton.setEnabled(false);
+                headStep.setEnabled(false);
+            }
+            else{
+                output.setEditable(false);
+                markerButton.setText("Marker");
+                input.setEnabled(true);
+                startButton.setEnabled(true);
+                //headStep.setEnabled(true);
+            }
+            output.setText("");
         }
     }
     
@@ -132,7 +155,7 @@ public class Main implements ActionListener  {
         try{
             setTerm(new Variable("Lambda Calculator"), new Definitions(new Definition[] {}), true);
             term = new Variable("Lambda Calculator");
-            Definitions definitions = LambdaTermParser.parse(input.getText());
+            Definitions definitions = LambdaTermParser.parse(input.getText().replace("\u03BB", "\\"));
 
             output.setText(definitions.get("Init").toString(definitions));
             output.append("\n");

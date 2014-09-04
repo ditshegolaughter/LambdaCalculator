@@ -5,9 +5,13 @@ import lambda.parser.Definitions;
 import lambda.utils.LambdaTermVisitor;
 import lambda.utils.LambdaTermVisitorVoid;
 
+import main.Main;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
+
+
 
 /**
  * Application.
@@ -75,6 +79,7 @@ public class Application extends LambdaTerm {
   public LambdaTerm rewrite() {
     Lambda lambda = (Lambda) left;
     System.out.println("("+ lambda.getTerm()+")["+lambda.getName()+"\\"+right+"]");
+    Main.Reduction = "("+ lambda.getTerm()+")["+lambda.getName()+"\\"+right+"]";
     return lambda.getTerm().substitute(lambda.getName(), right);
   }
 
