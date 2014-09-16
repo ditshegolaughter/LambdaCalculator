@@ -5,6 +5,7 @@ import java.awt.event.*;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.*;
+import javax.swing.*;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.ButtonGroup;
@@ -35,7 +36,8 @@ public class Main implements ActionListener  {
     private JButton startButton = new JButton("Start");
     private JButton headStep = new JButton("Next Step");
     private JButton markerButton = new JButton("Marker");
-    private JTextField input = new JTextField("Init = (\\x.\\y.y (x x y))(\\x.\\y.y (x x y)) a;");
+    private JButton check = new JButton("Check");
+    private JTextField input = new JTextField("(\\x.\\y.y (x x y))(\\x.\\y.y (x x y)) a");
     private LambdaTerm term = new Variable("Lambda Calculator");
     private Definitions definitions = new Definitions(new Definition[0]);
  
@@ -81,9 +83,11 @@ public class Main implements ActionListener  {
         input.setPreferredSize(new Dimension(250, input.getPreferredSize().height));
         buttonPanel.add(input);
         buttonPanel.add(startButton);
-        headStep.setEnabled(false);
+        headStep.setVisible(false);
         //buttonPanel.add(spacer());
         buttonPanel.add(headStep);
+        check.setVisible(false);
+        buttonPanel.add(check);
         buttonPanel.add(markerButton);
         
         topPanel.add(buttonPanel, BorderLayout.SOUTH);
@@ -95,12 +99,15 @@ public class Main implements ActionListener  {
         
         startButton.addActionListener(this);
         headStep.addActionListener(this);
+        check.addActionListener(this);
         markerButton.addActionListener(this);
         input.addActionListener(this);
         //Create a scrolled text area.
         output = new JTextArea(5, 30);
         output.setEditable(false);
         scrollPane = new JScrollPane(output);
+        Font font = new Font( "Serif", Font.BOLD + Font.ITALIC, 18 );
+        output.setFont(font);
  
         
         //Add the text area to the content pane.
@@ -111,7 +118,7 @@ public class Main implements ActionListener  {
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getSource() == startButton ||actionEvent.getSource() == input){
             parse();
-            headStep.setEnabled(true);
+            headStep.setVisible(true);
         }
         if(actionEvent.getSource() == headStep){
             int count = 1;
@@ -121,7 +128,7 @@ public class Main implements ActionListener  {
                     setTerm(term.visit(new Rewrite(), position.copy()), definitions, false);
                     output.append(" ==> ");
                     output.append(term.toString(definitions));
-                    output.append("       //" + Reduction);
+                    output.append(Reduction);
                     output.append("\n");
                 }
             }
@@ -131,18 +138,53 @@ public class Main implements ActionListener  {
             if(markerButton.getText() == "Marker"){
                 output.setEditable(true);
                 markerButton.setText("Calculator");
-                input.setEnabled(false);
-                startButton.setEnabled(false);
-                headStep.setEnabled(false);
+                input.setVisible(false);
+                startButton.setVisible(false);
+                headStep.setVisible(false);
+                check.setVisible(true);
             }
             else{
                 output.setEditable(false);
                 markerButton.setText("Marker");
-                input.setEnabled(true);
-                startButton.setEnabled(true);
+                input.setVisible(true);
+                startButton.setVisible(true);
+                check.setVisible(false);
                 //headStep.setEnabled(true);
             }
             output.setText("");
+        }
+        if(actionEvent.getSource() == check){
+            //String[] solution = output.getText();
+            if(check.getText().equals("Enter Solution"))
+            {
+                output.setText("");
+                output.setEditable(true);
+                check.setText("Check");
+                
+            }
+            else{
+                if(output.getText().equals("")){
+                JOptionPane.showMessageDialog(null,"Enter your solution first!");
+                }
+                else{
+                    check.setText("Enter Solution");
+                    output.setEditable(false);
+                    String[] solution = output.getText().split("\n");
+                    output.append("\n============ Marking Solution ============\n");
+                    parse("Init = "+solution[0]+";");
+                    for(int i = 1; i<solution.length; ++i){
+
+                        //System.out.println(solution[i]);
+                        if(output.getText().contains("jfun.parsec.ParserException")){
+                            break;
+                        }
+                        output.append(solution[i]+"\n");
+                    }
+                    //System.out.println("Init = "+solution[0]+";");
+                }
+            }
+            
+            
         }
     }
     
@@ -155,9 +197,26 @@ public class Main implements ActionListener  {
         try{
             setTerm(new Variable("Lambda Calculator"), new Definitions(new Definition[] {}), true);
             term = new Variable("Lambda Calculator");
-            Definitions definitions = LambdaTermParser.parse(input.getText().replace("\u03BB", "\\"));
+            Definitions definitions = LambdaTermParser.parse("Init = "+input.getText().replace("\u03BB", "\\") +";");
 
             output.setText(definitions.get("Init").toString(definitions));
+            output.append("\n");
+
+            setTerm(definitions.get("Init"), definitions, true);
+            
+        }
+        catch(Exception e){
+            output.setText(e.toString());
+        }
+    }
+    public void parse(String expr){
+        try{
+            setTerm(new Variable("Lambda Calculator"), new Definitions(new Definition[] {}), true);
+            term = new Variable("Lambda Calculator");
+            Definitions definitions = LambdaTermParser.parse(expr.replace("\u03BB", "\\"));
+            
+            
+            output.append(definitions.get("Init").toString(definitions));
             output.append("\n");
 
             setTerm(definitions.get("Init"), definitions, true);
