@@ -30,6 +30,7 @@ import lambda.utils.Position;
 
 public class Main implements ActionListener  {
     public static String Reduction = "";
+    public static String Alpha = "";
     JTextArea output;
     JScrollPane scrollPane;
     
@@ -39,7 +40,10 @@ public class Main implements ActionListener  {
     private JButton check = new JButton("Check");
     private JTextField input = new JTextField("(\\x.\\y.y (x x y))(\\x.\\y.y (x x y)) a");
     private LambdaTerm term = new Variable("Lambda Calculator");
+    private LambdaTerm term2 = new Variable("Marker parsing");
     private Definitions definitions = new Definitions(new Definition[0]);
+    
+    private String[] solution;
  
     public JMenuBar createMenuBar() {
         JMenuBar menuBar;
@@ -117,7 +121,7 @@ public class Main implements ActionListener  {
     }
     public void actionPerformed(ActionEvent actionEvent) {
         if(actionEvent.getSource() == startButton ||actionEvent.getSource() == input){
-            parse();
+            output.setText(parse()+"\n");
             headStep.setVisible(true);
         }
         if(actionEvent.getSource() == headStep){
@@ -130,6 +134,12 @@ public class Main implements ActionListener  {
                     output.append(term.toString(definitions));
                     output.append(Reduction);
                     output.append("\n");
+                    if(!Alpha.equals("")){
+                        output.append(" ==> ");
+                        output.append(Alpha);
+                        output.append("\n");
+                        Alpha = "";
+                    }
                 }
             }
         }
@@ -149,7 +159,6 @@ public class Main implements ActionListener  {
                 input.setVisible(true);
                 startButton.setVisible(true);
                 check.setVisible(false);
-                //headStep.setEnabled(true);
             }
             output.setText("");
         }
@@ -169,18 +178,9 @@ public class Main implements ActionListener  {
                 else{
                     check.setText("Enter Solution");
                     output.setEditable(false);
-                    String[] solution = output.getText().split("\n");
+                    solution = output.getText().split("\n");
                     output.append("\n============ Marking Solution ============\n");
-                    parse("Init = "+solution[0]+";");
-                    for(int i = 1; i<solution.length; ++i){
-
-                        //System.out.println(solution[i]);
-                        if(output.getText().contains("jfun.parsec.ParserException")){
-                            break;
-                        }
-                        output.append(solution[i]+"\n");
-                    }
-                    //System.out.println("Init = "+solution[0]+";");
+                    mark();
                 }
             }
             
@@ -193,37 +193,82 @@ public class Main implements ActionListener  {
         this.definitions = definitions;
      
       }
-    public void parse(){
+    public String parse(){
         try{
             setTerm(new Variable("Lambda Calculator"), new Definitions(new Definition[] {}), true);
             term = new Variable("Lambda Calculator");
             Definitions definitions = LambdaTermParser.parse("Init = "+input.getText().replace("\u03BB", "\\") +";");
-
-            output.setText(definitions.get("Init").toString(definitions));
-            output.append("\n");
-
             setTerm(definitions.get("Init"), definitions, true);
-            
+            return definitions.get("Init").toString(definitions);
+                 
         }
         catch(Exception e){
-            output.setText(e.toString());
+            //output.setText(e.toString());
+            return input.getText()+" : invalid expression";
         }
     }
-    public void parse(String expr){
+    public String parse(String expr){
         try{
             setTerm(new Variable("Lambda Calculator"), new Definitions(new Definition[] {}), true);
             term = new Variable("Lambda Calculator");
-            Definitions definitions = LambdaTermParser.parse(expr.replace("\u03BB", "\\"));
-            
-            
-            output.append(definitions.get("Init").toString(definitions));
-            output.append("\n");
-
+            Definitions definitions = LambdaTermParser.parse("Init = "+expr.replace("\u03BB", "\\") +";");
             setTerm(definitions.get("Init"), definitions, true);
+            return definitions.get("Init").toString(definitions);
+                 
+        }
+        catch(Exception e){
+            //output.setText(e.toString());
+            return input.getText()+" : invalid expression";
+        }
+    }
+    public void mark(){
+        int i = 0;
+        
+        try{
+            //setTerm(new Variable("Lambda Calculator"), new Definitions(new Definition[] {}), true);
+            //term = new Variable("Lambda Calculator");
+            String result;
+            for( i = 0; i<solution.length; i++){
+                if(i==0){
+                    result = parse(solution[i]);
+                    output.append(result+"\n");
+                    if(result.contains("invalid")){
+                        break;
+                    }
+                    
+                }
+                else{
+                    System.out.println(solution[i]);
+                    Definitions definitions2 = LambdaTermParser.parse("Init = "+solution[i].replace("\u03BB", "\\")+";");
+                    result = definitions2.get("Init").toString(definitions2);
+                    Position position = term.visit(new HeadRedex(), null);
+                    if(position != null){
+                        setTerm(term.visit(new Rewrite(), position.copy()), definitions, false);
+                        if(result.equals(term.toString(definitions))){
+                            output.append(result+" : correct");
+                        }
+                        else{
+                            output.append(result+" : incorrect");
+                        }
+                        
+                        output.append("\n");
+                    }
+                }
+                
+                
+            }
+            
+            
+            
+            
+
+            //setTerm(definitions.get("Init"), definitions, true);
             
         }
         catch(Exception e){
-            output.setText(e.toString());
+            //output.setText(e.toString());
+            output.append(solution[i] + " invalid expression");
+            System.out.println(e.toString());
         }
     }
  

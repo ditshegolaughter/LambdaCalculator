@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
 
+import main.Main;
+
 /**
  * Lambda abstraction.
  */
@@ -81,6 +83,7 @@ public class Lambda extends LambdaTerm {
       renaming.put(name, renamedName);
       freeVars.add(renamedName);
       System.out.println("Alpha Reduction: (" + this.term.toString()+")["+name + "\\" + renamedName+"]");
+      Main.Alpha = "Alpha Reduction: (" + this.term.toString()+")["+name + "\\" + renamedName+"]";
       renamed = true;
     }
 
