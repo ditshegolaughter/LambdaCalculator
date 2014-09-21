@@ -2,6 +2,8 @@ package lambda;
 
 import lambda.parser.Definition;
 import lambda.parser.Definitions;
+import lambda.utils.LambdaTermVisitor;
+import lambda.utils.LambdaTermVisitorVoid;
 
 import main.Main;
 
@@ -77,7 +79,6 @@ public class Application extends LambdaTerm {
   public LambdaTerm rewrite() {
     Lambda lambda = (Lambda) left;
     //System.out.println("("+ lambda.getTerm()+")["+lambda.getName()+"\\"+right+"]");
-    System.out.println(Main.AlphaReduction);
     Main.BetaReduction = "     // Beta-reduction: ("+ lambda.getTerm()+")["+lambda.getName()+"\\"+right+"]";
     return lambda.getTerm().substitute(lambda.getName(), right);
   }
@@ -96,7 +97,14 @@ public class Application extends LambdaTerm {
     return this;
   }
 
-  
+  // Visitors
+  public <T,S> T visit(LambdaTermVisitor<T,S> visitor, S s) {
+    return visitor.visit(this, s);
+  }
+
+  public void visit(LambdaTermVisitorVoid visitor) {
+    visitor.visit(this);
+  }
 
   // Hash
   public void updateHash() {
