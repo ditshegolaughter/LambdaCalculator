@@ -83,7 +83,7 @@ public class Lambda extends LambdaTerm {
       renaming.put(name, renamedName);
       freeVars.add(renamedName);
       System.out.println("Alpha Reduction: (" + this.term.toString()+")["+name + "\\" + renamedName+"]");
-      Main.AlphaReduction = "Alpha Reduction: (" + this.term.toString()+")["+name + "\\" + renamedName+"]";
+      Main.AlphaReduction =  renamedName;
       renamed = true;
     }
 
