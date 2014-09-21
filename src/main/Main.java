@@ -157,12 +157,7 @@ public class Main implements ActionListener  {
                 output.append(term.toString(definitions));
                 output.append(BetaReduction);
                 output.append("\n");
-                if(!AlphaReduction.equals("")){
-                    output.append(" => ");
-                    output.append(AlphaReduction);
-                    output.append("\n");
-                    AlphaReduction = "";
-                }
+                
             }
             
         }
@@ -310,7 +305,7 @@ public class Main implements ActionListener  {
      */
     private static void createAndShowGUI() {
         //Create and set up the window.
-        JFrame frame = new JFrame("LAMBDA Calculator");
+        JFrame frame = new JFrame("The Lambda");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
  
         //Create and set up the content pane.
